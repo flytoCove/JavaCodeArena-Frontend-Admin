@@ -13,7 +13,9 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
     "axios": "^1.13.2",
+    "element-plus": "^2.13.3",
     "js-cookie": "^3.0.5",
     "vue": "^3.5.25",
     "vue-router": "^4.6.3"
@@ -21,6 +23,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.2",
     "prettier": "3.6.2",
+    "sass-embedded": "^1.97.3",
     "vite": "^7.2.4",
     "vite-plugin-vue-devtools": "^8.0.5"
   }

@@ -6,13 +6,30 @@ const router = createRouter({
     {
       path: '/jcode/login',
       name: 'login',
-      component: () => import('../views/Login.vue')
+      component: () => import('@/views/Login.vue'),
     },
     {
-      path: '/jcode/system',
-      name: 'systmm',
-      component: () => import('../views/System.vue')
-    }
+      path: '/jcode/layout',
+      name: 'layout',
+      component: () => import('@/views/Layout.vue'),
+      children: [
+        {
+          path: 'question',
+          name: 'question',
+          component: () => import('@/views/Question.vue'),
+        },
+        {
+          path: 'exam',
+          name: 'exam',
+          component: () => import('@/views/Exam.vue'),
+        },
+        {
+          path: 'cuser',
+          name: 'cuser',
+          component: () => import('@/views/Cuser.vue'),
+        },
+      ],
+    },
   ],
 })
 

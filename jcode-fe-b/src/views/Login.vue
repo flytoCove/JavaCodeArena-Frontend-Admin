@@ -201,7 +201,7 @@ const submit = async () => {
     // code == 1000 标识登录成功
     if(data.code == 1000){
         Toast.success('登录成功')
-        router.push("/jcode/system")
+        router.push("/jcode/layout")
         setToken(data.data)
     }
     else {
