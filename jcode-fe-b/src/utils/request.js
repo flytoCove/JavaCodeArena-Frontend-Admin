@@ -2,6 +2,7 @@
 import axios from 'axios'
 import { getToken, removeToken } from './cookie'
 import router from '@/router';
+import { ElMessageBox, ElMessage } from 'element-plus'
 
 // 创建一个 axios 实例
 const service = axios.create({
@@ -27,13 +28,27 @@ service.interceptors.request.use(
 );
 
 
-// 响应拦截器（可选）
+//响应拦截器
 service.interceptors.response.use(
-  response => response.data, // 直接返回响应体 data
-  error => {
-    console.error('请求出错：', error)
-    return Promise.reject(error)
+  (res) => {  //res : 响应数据
+    // 未设置状态码则默认成功状态
+    const code = res.data.code;
+    const msg = res.data.msg;
+    if (code === 3001) {
+      ElMessage.error(msg);
+      removeToken()
+      router.push('/jcode/login')
+      return Promise.reject(new Error(msg));
+    } else if (code !== 1000) {
+      ElMessage.error(msg);
+      return Promise.reject(new Error(msg));
+    } else {
+      return Promise.resolve(res.data);
+    }
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-)
+);
 
 export default service
