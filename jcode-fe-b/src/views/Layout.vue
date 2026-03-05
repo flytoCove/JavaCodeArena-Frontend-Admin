@@ -3,7 +3,7 @@
     <el-header class="el-header">
       <el-dropdown placement="bottom-end">
         <span class="el-dropdown__box">
-          <div><strong>当前用户：</strong>管理员</div>
+          <div><strong>当前用户：</strong>{{ loginUser.nickName }}</div>
           <el-icon>
             <ArrowDownBold />
           </el-icon>
@@ -47,6 +47,18 @@
 
 <script setup>
 import { Document,TrophyBase,User, ArrowDownBold, SwitchButton } from '@element-plus/icons-vue'
+import { reactive } from 'vue'
+import { getUserInfoService,logoutService } from '@/apis/sysuser'
+const loginUser = reactive({
+  nickName: ''
+})
+
+async function getUserInfo() {
+  const userInfo = await getUserInfoService()
+  loginUser.nickName = userInfo.data.nickName
+}
+getUserInfo()
+
 </script>
 
 <style lang="scss" scoped>

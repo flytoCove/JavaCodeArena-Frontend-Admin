@@ -1,5 +1,7 @@
 // /src/request.js
 import axios from 'axios'
+import { getToken, removeToken } from './cookie'
+import router from '@/router';
 
 // 创建一个 axios 实例
 const service = axios.create({
@@ -10,15 +12,20 @@ const service = axios.create({
   },
 })
 
-// 请求拦截器（可选）
+//请求拦截器
 service.interceptors.request.use(
-  config => {
-    // 如果有 token，可以在这里统一加上
-    // config.headers.Authorization = `Bearer ${token}`
-    return config
+  (config) => {
+    if (getToken()) {
+      config.headers["Authorization"] = "Bearer " + getToken();
+    }
+    return config;
   },
-  error => Promise.reject(error)
-)
+  (error) => {
+    console.log(error)
+    Promise.reject(error);
+  }
+);
+
 
 // 响应拦截器（可选）
 service.interceptors.response.use(
