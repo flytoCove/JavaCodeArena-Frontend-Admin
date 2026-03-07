@@ -1,9 +1,22 @@
-.el-table {
-  th {
-    background-color: #32C5FF !important;
-    color: #ffff;
-  }
+// :deep(.el-table) {
+//   background: rgba(255,255,255,0.05);
+//   backdrop-filter: blur(6px);
+// }
+
+.el-table,
+.el-table__inner-wrapper,
+.el-table__body-wrapper,
+.el-table tr,
+.el-table td {
+  background-color: transparent !important;
 }
+
+
+.el-table th {
+  background-color: #32C5FF !important;
+  color: #fff;
+}
+
 
 .el-button--primary {
   color: #32c5ff !important;
@@ -15,11 +28,16 @@
     color: #FD4C40;
   }
 }
-
+// 分页器
 .el-pagination {
   margin-top: 20px;
-  justify-content: flex-end;
+  justify-content: center;
   .el-pager li.is-active {
     background-color: #32c5ff !important;
   }
 }
+
+
+
+
+

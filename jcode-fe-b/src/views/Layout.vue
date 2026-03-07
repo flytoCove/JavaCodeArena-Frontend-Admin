@@ -1,6 +1,27 @@
 <template>
   <el-container class="layout-container">
     <el-header class="el-header">
+      <!-- 顶部导航菜单 - 修改为透明背景 -->
+      <el-menu class="header-menu" mode="horizontal" router :background-color="'transparent'" :border-bottom="false">
+        <el-menu-item index="/jcode/layout/cuser">
+          <el-icon><User /></el-icon>
+          <span>用户管理</span>
+          <!-- 添加自定义下划线元素 -->
+          <span class="custom-underline"></span>
+        </el-menu-item>
+        <el-menu-item index="/jcode/layout/question">
+          <el-icon><Document /></el-icon>
+          <span>题目管理</span>
+          <span class="custom-underline"></span>
+        </el-menu-item>
+        <el-menu-item index="/jcode/layout/exam">
+          <el-icon><TrophyBase /></el-icon>
+          <span>竞赛管理</span>
+          <span class="custom-underline"></span>
+        </el-menu-item>
+      </el-menu>
+
+      <!-- 右侧用户信息下拉菜单 -->
       <el-dropdown placement="bottom-end">
         <span class="el-dropdown__box">
           <div><strong>当前用户：</strong>{{ loginUser.nickName }}</div>
@@ -16,31 +37,9 @@
       </el-dropdown>
     </el-header>
 
-    <el-main class="layout-bottom-box">
-      <div class="left">
-        <el-aside width="150px" class="el-aside">
-          <el-menu class="el-menu" router>
-            <el-menu-item index="/jcode/layout/cuser">
-              <el-icon><User /></el-icon>
-              <span>用户管理</span>
-            </el-menu-item>
-            <el-menu-item index="/jcode/layout/question">
-              <el-icon><Document /></el-icon>
-              <span>题目管理</span>
-            </el-menu-item>
-            <el-menu-item index="/jcode/layout/exam">
-              <el-icon><TrophyBase /></el-icon>
-              <span>竞赛管理</span>
-            </el-menu-item>
-          </el-menu>
-        </el-aside>
-      </div>
-      <!-- <div class="right">
-        <router-view />
-      </div> -->
-      <div class="right">
-        <RouterView />
-      </div>
+    <!-- 移除了左侧边栏，只保留主内容区 -->
+    <el-main class="layout-main-box">
+      <RouterView />
     </el-main>
   </el-container>
 </template>
@@ -87,6 +86,111 @@ async function logout() {
 </script>
 
 <style lang="scss" scoped>
+
+/* 建议的布局样式 */
+.header-menu {
+  flex: 1; /* 撑开剩余空间 */
+  border-bottom: none; /* 去除原本 menu 的下边框，避免与 header 边框重复 */
+  
+  // 确保菜单项与header背景一致
+  :deep(.el-menu--horizontal) {
+    background-color: transparent !important;
+    border-bottom: none !important;
+  }
+  
+  // 修改菜单项样式，使其与毛玻璃效果融合
+  :deep(.el-menu-item) {
+    position: relative;
+    background-color: transparent !important;
+    color: #4a90e2;
+    border-bottom: none !important;
+    transition: all 0.3s ease;
+    overflow: visible;
+    
+    // 自定义下划线样式
+    .custom-underline {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #32c5ff, #8a6eff);
+      border-radius: 3px 3px 0 0;
+      transition: width 0.3s ease;
+      opacity: 0;
+      box-shadow: 0 0 10px rgba(50, 197, 255, 0.5);
+    }
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.2) !important;
+      color: #32c5ff;
+      
+      // 悬停时显示半透明的下划线
+      .custom-underline {
+        width: 30px;
+        opacity: 0.5;
+      }
+    }
+    
+    // 激活状态样式
+    &.is-active {
+      color: #32c5ff;
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      
+      .custom-underline {
+        width: 40px;
+        opacity: 1;
+        animation: underlinePulse 2s infinite;
+      }
+      
+      // 添加光晕效果
+      &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at center, rgba(50, 197, 255, 0.2), transparent 70%);
+        pointer-events: none;
+        border-radius: 22px;
+      }
+    }
+  }
+  
+  // 为图标添加动画效果
+  :deep(.el-icon) {
+    transition: transform 0.3s ease;
+  }
+  
+  :deep(.el-menu-item:hover .el-icon) {
+    transform: translateY(-2px);
+  }
+  
+  :deep(.el-menu-item.is-active .el-icon) {
+    color: #32c5ff;
+    filter: drop-shadow(0 0 5px rgba(50, 197, 255, 0.5));
+  }
+}
+
+// 下划线脉冲动画
+@keyframes underlinePulse {
+  0% {
+    box-shadow: 0 0 5px rgba(50, 197, 255, 0.5);
+    width: 40px;
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(50, 197, 255, 0.8);
+    width: 50px;
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(50, 197, 255, 0.5);
+    width: 40px;
+  }
+}
+
 .layout-container {
   height: 100vh;
   // 修改背景为与Login.vue相同的渐变色
@@ -275,5 +379,30 @@ async function logout() {
       }
     }
   }
+  
+  // 夜间模式下的菜单项样式
+  .header-menu {
+    :deep(.el-menu-item) {
+      color: #c9dcff !important;
+      
+      .custom-underline {
+        background: linear-gradient(90deg, #76adff, #a688ff);
+      }
+      
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #76adff !important;
+      }
+      
+      &.is-active {
+        color: #76adff !important;
+        
+        &::before {
+          background: radial-gradient(circle at center, rgba(118, 173, 255, 0.2), transparent 70%);
+        }
+      }
+    }
+  }
 }
+
 </style>
