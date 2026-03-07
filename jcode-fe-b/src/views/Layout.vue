@@ -283,6 +283,11 @@ async function logout() {
     }
   }
 
+  // 控制 header 与下方 RouterView 的间距：改 .layout-main-box 的 padding-top
+  .layout-main-box {
+    padding-top: 0; /* 调大此值 = 增加 header 与内容区的距离，调小或 0 = 更紧凑 */
+  }
+
   .el-header {
     background: rgba(255, 255, 255, 0.35); // 改为毛玻璃效果
     backdrop-filter: blur(22px) saturate(180%);

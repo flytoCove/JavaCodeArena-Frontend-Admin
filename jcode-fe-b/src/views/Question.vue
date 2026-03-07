@@ -62,7 +62,7 @@ const total = ref(0)
 
 async function getQuestionList() {
   const result = await getQuestionListService(params)
-  console.log(result)
+  // console.log(result)
   questionList.value = result.rows
   total.value = result.total
 }
@@ -70,7 +70,7 @@ getQuestionList()
 
 function handleSizeChange(newSize) {
   // params.pageSize = newSize
-  params.pageNum = 1
+  params.pageNum = 1 
   getQuestionList()
 }
 

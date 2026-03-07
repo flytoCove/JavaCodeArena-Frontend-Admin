@@ -217,7 +217,11 @@ const submit = async () => {
     }
     
   } catch (err) {
-    Toast.error('网络连接异常，请检查网络')
+    // 只有真正的网络/超时错误才提示“网络连接异常”；业务错误（如用户不存在）已在 request 拦截器里用 ElMessage 提示，此处不再重复
+    const isNetworkError = !err.response && (err.code === 'ECONNABORTED' || err.message === 'Network Error' || (err.message && err.message.includes('timeout')))
+    if (isNetworkError) {
+      Toast.error('网络连接异常，请检查网络')
+    }
   }
 }
 
