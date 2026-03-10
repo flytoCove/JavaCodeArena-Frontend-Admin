@@ -1,5 +1,5 @@
 <template>
-   <div style="display: flex; justify-content: center;">
+   <div style="display: flex; justify-content: flex-start;">
     <el-form inline="true" style="margin-bottom: 0;">
       <el-form-item style="margin-bottom: 0.1; margin-right: 10px;">
         <selector v-model="params.difficulty" placeholder="请选择题目难度" style="width: 200px;"></selector>
