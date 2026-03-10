@@ -1,5 +1,5 @@
 <template>
-  <el-drawer v-model="visibleDrawer" :destroy-on-close="true" :with-header="false" size="50%">
+  <el-drawer v-model="visibleDrawer" :destroy-on-close="true" :with-header="false" size="62%">
     <el-form :model="formModel" ref="formRef">
       <el-form-item label="题目标题:">
         <el-input style="width:387px !important" v-model="formQuestion.title" placeholder="请输入标题"></el-input>
@@ -37,12 +37,13 @@
 </template>
 
 <script setup>
-// import { QuillEditor } from '@vueup/vue-quill'
-// import '@vueup/vue-quill/dist/vue-quill.snow.css'
-// import CodeEditor from './CodeEditor.vue'
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import CodeEditor from './CodeEditor.vue'
 import QuestionSelector from './QuestionSelector.vue';
 import { ref, reactive } from 'vue';
 import { addQuestionService, getQuestionDetailService, editQuestionService } from '@/apis/question';
+import { ElMessage } from 'element-plus'
 
 const visibleDrawer = ref(false)
 const formQuestion = reactive({
@@ -118,14 +119,15 @@ async function onSubmit() {
   if (formQuestion.questionId) {
     //编辑题目请求
     await editQuestionService(fd)
-    ElMessage.success('编辑成功')
+    ElMessage.success('修改成功')
+    visibleDrawer.value = false
     emit('success', 'edit')
   } else {
     await addQuestionService(fd)
     ElMessage.success('添加成功')
+    visibleDrawer.value = false
     emit('success', 'add')
   }
-  visibleDrawer.value = false
 }
 
 function handleEditorContent(content) {

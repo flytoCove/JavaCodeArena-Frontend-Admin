@@ -14,8 +14,8 @@
       </el-form-item>
     </el-form>
   </div>
-  <el-table height="526px" :data="questionList" :style="{ backgroundColor: 'transparent' }">
-    <el-table-column prop="questionId" width="180px" label="题目id" />
+  <el-table height="580px" :data="questionList" :style="{ backgroundColor: 'transparent' }">
+    <el-table-column prop="questionId" width="200px" label="题目id" />
     <el-table-column prop="title" label="题目标题" />
     <el-table-column prop="difficulty" label="题目难度" width="90px">
       <template #default="{ row }">
@@ -49,6 +49,8 @@ import Selector from "@/components/QuestionSelector.vue"
 import { getQuestionListService, delQuestionService } from "@/apis/question"  
 import { reactive, ref } from "vue";
 import QuestionDrawer from "@/components/QuestionDrawer.vue"
+import router from "@/router"
+import { ElMessageBox, ElMessage } from "element-plus"
 
 const params = reactive({
   pageNum: 1,
@@ -93,9 +95,9 @@ function onReset() {
 }
 
 const questionEditRef = ref()
-// 添加
+// 添加：跳转到独立的添加页，而不是抽屉
 const onAddQuestion = () => {
-  questionEditRef.value.open()
+  router.push("/jcode/layout/question/add")
 }
 
 
@@ -111,7 +113,23 @@ async function onEdit(questionId) {
 }
 
 async function onDelete(questionId) {
+  try {
+    await ElMessageBox.confirm(
+      '确认删除该题目吗？删除后不可恢复！',
+      '温馨提示',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+    )
+  } catch {
+    // 用户取消
+    return
+  }
+
   await delQuestionService(questionId)
+  ElMessage.success('删除成功')
   params.pageNum = 1
   getQuestionList()
 }

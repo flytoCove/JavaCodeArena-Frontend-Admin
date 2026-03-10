@@ -3,6 +3,11 @@
     <el-header class="el-header">
       <!-- 顶部导航菜单 - 修改为透明背景 -->
       <el-menu class="header-menu" mode="horizontal" router :background-color="'transparent'" :border-bottom="false">
+        <el-menu-item index="/jcode/layout/home">
+          <el-icon><House /></el-icon>
+          <span>主页</span>
+          <span class="custom-underline"></span>
+        </el-menu-item>
         <el-menu-item index="/jcode/layout/cuser">
           <el-icon><User /></el-icon>
           <span>用户管理</span>
@@ -45,7 +50,7 @@
 </template>
 
 <script setup>
-import { Document, TrophyBase, User, ArrowDownBold, SwitchButton } from '@element-plus/icons-vue'
+import { Document, TrophyBase, User, ArrowDownBold, SwitchButton, House } from '@element-plus/icons-vue'
 import { reactive } from 'vue'
 import { getUserInfoService, logoutService } from '@/apis/sysuser'
 import { ElMessageBox, ElMessage } from 'element-plus'
