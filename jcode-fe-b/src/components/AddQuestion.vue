@@ -2,26 +2,15 @@
   <div class="add-question-page">
     <div class="add-question-card">
       <div class="card-header">
-        <h2 class="title">添加题目</h2>
+        <h2 class="title">{{ type === 'edit' ? '编辑题目' : '添加题目' }}</h2>
         <p class="subtitle">请完善题目信息，用于评测与比赛出题</p>
       </div>
 
-      <el-form
-        ref="formRef"
-        :model="formQuestion"
-        label-width="120px"
-        class="add-question-form"
-      >
-
+      <el-form ref="formRef" :model="formQuestion" label-width="120px" class="add-question-form">
         <!-- 题目信息 -->
         <div class="form-vertical">
-
           <el-form-item label="题目标题:">
-            <el-input
-              v-model="formQuestion.title"
-              placeholder="请输入题目标题"
-              clearable
-            />
+            <el-input v-model="formQuestion.title" placeholder="请输入题目标题" clearable />
           </el-form-item>
 
           <el-form-item label="题目难度:">
@@ -34,29 +23,23 @@
 
           <el-form-item label="时间限制:">
             <el-input
-              v-model="formQuestion.timeLimit"
-              placeholder="请输入时间限制（单位毫秒）"
+              v-model="timeLimitModel"
+              placeholder="请输入时间限制（毫秒）"
               clearable
             />
           </el-form-item>
 
           <el-form-item label="空间限制:">
             <el-input
-              v-model="formQuestion.spaceLimit"
-              placeholder="请输入空间限制（单位字节）"
+              v-model="spaceLimitModel"
+              placeholder="请输入空间限制（字节）"
               clearable
             />
           </el-form-item>
 
-          <!-- 题目用例 -->
           <el-form-item label="题目用例:">
-            <el-input
-              v-model="formQuestion.questionCase"
-              placeholder="请输入题目用例"
-              clearable
-            />
+            <el-input v-model="formQuestion.questionCase" placeholder="请输入题目用例" clearable />
           </el-form-item>
-
         </div>
 
         <!-- 题目内容 -->
@@ -64,14 +47,12 @@
           <div class="panel">
             <div class="panel-header">
               <div class="panel-title">题目描述</div>
-              <el-segmented
-                v-model="contentMode"
-                :options="contentModeOptions"
-                size="small"
-              />
+
+              <el-segmented v-model="contentMode" :options="contentModeOptions" size="small" />
             </div>
 
             <div class="panel-body">
+              <!-- 编辑 -->
               <div v-show="contentMode === 'edit'" class="rich-editor">
                 <QuillEditor
                   v-model:content="formQuestion.content"
@@ -81,6 +62,7 @@
                 />
               </div>
 
+              <!-- 预览 -->
               <div v-show="contentMode === 'preview'" class="rich-preview">
                 <div
                   v-if="formQuestion.content"
@@ -88,9 +70,7 @@
                   v-html="formQuestion.content"
                 ></div>
 
-                <div v-else class="empty-hint">
-                  暂无内容，可切回“编辑”开始编写
-                </div>
+                <div v-else class="empty-hint">暂无内容，可切回“编辑”开始编写</div>
               </div>
             </div>
           </div>
@@ -99,73 +79,69 @@
         <!-- 代码区域 -->
         <el-form-item label="代码区域:" class="code-area">
           <div class="panel code-panel">
-
             <div class="panel-header">
               <div class="panel-title">代码编辑</div>
-              <div class="panel-desc">
-                默认代码与 main 函数分开维护，便于评测拼装
-              </div>
+              <div class="panel-desc">默认代码与 main 函数分开维护，便于评测拼装</div>
             </div>
 
             <div class="panel-body">
               <el-tabs v-model="codeTab" class="code-tabs">
-
+                <!-- 默认代码 -->
                 <el-tab-pane label="默认代码块" name="defaultCode">
                   <div class="code-editor-wrap">
-                    <CodeEditor
-                      ref="defaultCodeRef"
-                      @update:value="handleEditorContent"
-                    />
+                    <CodeEditor v-model:value="formQuestion.defaultCode" />
                   </div>
                 </el-tab-pane>
 
+                <!-- main函数 -->
                 <el-tab-pane label="main 函数" name="mainFuc">
                   <div class="code-editor-wrap">
-                    <CodeEditor
-                      ref="mainFucRef"
-                      @update:value="handleEditorMainFunc"
-                    />
+                    <CodeEditor v-model:value="formQuestion.mainFuc" />
                   </div>
                 </el-tab-pane>
-
               </el-tabs>
             </div>
-
           </div>
         </el-form-item>
 
         <!-- 按钮 -->
         <div class="form-footer">
-          <el-button @click="onCancel" class="btn-cancel">取 消</el-button>
+          <el-button @click="onCancel" class="btn-cancel"> 取 消 </el-button>
 
-          <el-button
-            type="primary"
-            class="btn-submit"
-            :loading="submitting"
-            @click="onSubmit"
-          >
-            发 布
+          <el-button type="primary" class="btn-submit" :loading="submitting" @click="onSubmit">
+            {{ type === 'edit' ? '保存修改' : '发布题目' }}
           </el-button>
         </div>
-
       </el-form>
     </div>
   </div>
 </template>
+
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted, computed } from 'vue'  // 导入 computed
 import { ElMessage } from 'element-plus'
 import QuestionSelector from './QuestionSelector.vue'
-import { addQuestionService } from '@/apis/question'
+import CodeEditor from './CodeEditor.vue'
 import router from '@/router'
+import { useRoute } from 'vue-router'
+
+import { addQuestionService, editQuestionService, getQuestionDetailService } from '@/apis/question'
+
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
-import CodeEditor from './CodeEditor.vue'
+
+const route = useRoute()
+
+const type = route.query.type
+const questionId = route.query.questionId
 
 const formRef = ref()
 const submitting = ref(false)
+
 const codeTab = ref('defaultCode')
+
 const contentMode = ref('edit')
+
 const contentModeOptions = [
   { label: '编辑', value: 'edit' },
   { label: '预览', value: 'preview' },
@@ -183,28 +159,43 @@ const formQuestion = reactive({
   mainFuc: '',
 })
 
-const defaultCodeRef = ref()
-const mainFucRef = ref()
+// 为时间限制创建计算属性，自动过滤非数字
+const timeLimitModel = computed({
+  get: () => formQuestion.timeLimit,
+  set: (val) => {
+    formQuestion.timeLimit = val.replace(/\D/g, '')
+  }
+})
+
+// 为空间限制创建计算属性
+const spaceLimitModel = computed({
+  get: () => formQuestion.spaceLimit,
+  set: (val) => {
+    formQuestion.spaceLimit = val.replace(/\D/g, '')
+  }
+})
 
 function validate() {
   let msg = ''
+
   if (!formQuestion.title) {
     msg = '请添加题目标题'
   } else if (formQuestion.difficulty === '') {
     msg = '请选择题目难度'
-  } else if (!formQuestion.timeLimit) {
-    msg = '请输入时间限制'
-  } else if (!formQuestion.spaceLimit) {
-    msg = '请输入空间限制'
+  } else if (!formQuestion.timeLimit || !/^\d+$/.test(formQuestion.timeLimit) || Number(formQuestion.timeLimit) <= 0) {
+    msg = '时间限制必须为正整数（毫秒）'
+  } else if (!formQuestion.spaceLimit || !/^\d+$/.test(formQuestion.spaceLimit) || Number(formQuestion.spaceLimit) <= 0) {
+    msg = '空间限制必须为正整数（字节）'
   } else if (!formQuestion.content) {
     msg = '请输入题目内容信息'
   } else if (!formQuestion.questionCase) {
-    msg = '请输入题目用例名称'
+    msg = '请输入题目用例'
   } else if (!formQuestion.defaultCode) {
     msg = '请输入默认代码'
   } else if (!formQuestion.mainFuc) {
     msg = '请输入 main 函数'
   }
+
   return msg
 }
 
@@ -212,19 +203,35 @@ async function onSubmit() {
   if (submitting.value) return
 
   const errorMessage = validate()
+
   if (errorMessage) {
     ElMessage.error(errorMessage)
     return
   }
 
   submitting.value = true
+
   try {
     const fd = new FormData()
+
     for (const key in formQuestion) {
       fd.append(key, formQuestion[key] ?? '')
     }
-    await addQuestionService(fd)
-    ElMessage.success('添加成功')
+
+    if (type === 'edit') {
+      fd.append('questionId', questionId)
+
+      // 直接传递对象也可，但后端需接收JSON
+      // 当前使用 FormData 方式，保持与之前一致
+      await editQuestionService(formQuestion)
+
+      ElMessage.success('修改成功')
+    } else {
+      await addQuestionService(fd)
+
+      ElMessage.success('添加成功')
+    }
+
     router.push('/jcode/layout/question')
   } finally {
     submitting.value = false
@@ -235,13 +242,15 @@ function onCancel() {
   router.push('/jcode/layout/question')
 }
 
-function handleEditorContent(content) {
-  formQuestion.defaultCode = content
-}
+onMounted(async () => {
+  if (type === 'edit' && questionId) {
+    const res = await getQuestionDetailService(questionId)
 
-function handleEditorMainFunc(content) {
-  formQuestion.mainFuc = content
-}
+    const data = res.data
+
+    Object.assign(formQuestion, data)
+  }
+})
 </script>
 
 <style lang="scss" scoped>
@@ -374,7 +383,9 @@ function handleEditorMainFunc(content) {
   }
 
   :deep(code) {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+      monospace;
   }
 }
 
@@ -461,7 +472,10 @@ function handleEditorMainFunc(content) {
   border-radius: 18px;
   background: linear-gradient(135deg, #7ac9ff, #b1e5ff);
   border: none;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    filter 0.18s ease;
   box-shadow: 0 10px 18px rgba(122, 201, 255, 0.22);
 }
 
@@ -570,4 +584,3 @@ function handleEditorMainFunc(content) {
   margin-top: 10px;
 }
 </style>
-

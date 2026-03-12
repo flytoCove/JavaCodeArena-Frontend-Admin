@@ -1,61 +1,82 @@
 <template>
-  <div ref="editorform" class="ace-editor">
-  </div>
+  <div ref="editorform" class="ace-editor"></div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from "vue"
+import { ref, onMounted, onBeforeUnmount, watch } from "vue"
 import ace from "ace-builds"
+
 import "ace-builds/src-noconflict/mode-java"
 import "ace-builds/src-noconflict/theme-eclipse"
-import "ace-builds/src-noconflict/ext-language_tools";
+import "ace-builds/src-noconflict/ext-language_tools"
 
-// 定义选项
+// 接收 v-model:value
+const props = defineProps({
+  value: {
+    type: String,
+    default: ""
+  }
+})
+
+const emit = defineEmits(["update:value"])
+
+const editorform = ref(null)
+
+let editor = null
+
+// 编辑器配置
 const options = {
   theme: `ace/theme/eclipse`,
   mode: `ace/mode/java`,
   maxLines: 20,
   minLines: 10,
-  fontSize: 15,
-};
-// 创建响应式引用
-let editor = null;
-const emit = defineEmits(['update:value']);
-const editorform = ref(null);
-// 初始化编辑器
-onMounted(() => {
-  editor = ace.edit(editorform.value, options);
-  editor.setOptions({
-    enableBasicAutocompletion: true,
-  });
-  editor.getSession().on('change', () => {
-    // 当编辑器内容变化时，触发自定义事件并传递编辑器的内容
-    emit('update:value', editor.getValue());
-  });
-});
-
-// 销毁编辑器实例
-onBeforeUnmount(() => {
-  if (editor) {
-    editor.destroy();
-    editor = null;
-  }
-});
-
-function setAceCode(content) {
-  editor.setValue(content)
+  fontSize: 15
 }
 
-defineExpose({
-  setAceCode
+// 初始化编辑器
+onMounted(() => {
+
+  editor = ace.edit(editorform.value, options)
+
+  editor.setOptions({
+    enableBasicAutocompletion: true
+  })
+
+  // 设置初始值
+  editor.setValue(props.value || "", -1)
+
+  // 内容变化同步给父组件
+  editor.getSession().on("change", () => {
+    emit("update:value", editor.getValue())
+  })
 })
 
 
+// 监听 value 变化（编辑题目回显关键）
+watch(
+  () => props.value,
+  (newVal) => {
+    if (editor && newVal !== editor.getValue()) {
+      editor.setValue(newVal || "", -1)
+    }
+  }
+)
+
+
+// 销毁
+onBeforeUnmount(() => {
+  if (editor) {
+    editor.destroy()
+    editor = null
+  }
+})
+
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .ace-editor {
-  margin: 10px 0 0 0;
-  width: 90%;
+  margin-top: 10px;
+  width: 100%;
+  height: 350px;
 }
 </style>

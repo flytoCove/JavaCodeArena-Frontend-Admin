@@ -9,13 +9,13 @@
       </el-form-item>
       <el-form-item style="margin-bottom: 0.1;">
         <el-button plain :icon="Search" @Click="onSearch"></el-button>
-        <el-button plain type="info" @click="onReset">重置</el-button>
+        <el-button plain :icon="Refresh" type="info" @click="onReset"></el-button>
         <el-button plain type="primary" :icon="Plus" @click="onAddQuestion">添加题目</el-button>
       </el-form-item>
     </el-form>
   </div>
   <el-table height="580px" :data="questionList" :style="{ backgroundColor: 'transparent' }">
-    <el-table-column prop="questionId" width="200px" label="题目id" />
+    <el-table-column prop="questionId" width="200px" label="题目ID" />
     <el-table-column prop="title" label="题目标题" />
     <el-table-column prop="difficulty" label="题目难度" width="90px">
       <template #default="{ row }">
@@ -40,15 +40,15 @@
     v-model:current-page="params.pageNum"  v-model:page-size="params.pageSize"
     :page-sizes="[5, 10, 15, 20]" @size-change="handleSizeChange" @current-change="handleCurrentChange" />
 
-  <question-drawer ref="questionEditRef" @success="onSuccess"></question-drawer>
+  <!-- <question-drawer ref="questionEditRef" @success="onSuccess"></question-drawer> -->
 </template>
 
 <script setup>
-import { Plus, Search } from "@element-plus/icons-vue"
+import { Plus, Search,Refresh } from "@element-plus/icons-vue"
 import Selector from "@/components/QuestionSelector.vue"
 import { getQuestionListService, delQuestionService } from "@/apis/question"  
 import { reactive, ref } from "vue";
-import QuestionDrawer from "@/components/QuestionDrawer.vue"
+// import QuestionDrawer from "@/components/QuestionDrawer.vue"
 import router from "@/router"
 import { ElMessageBox, ElMessage } from "element-plus"
 
@@ -64,7 +64,6 @@ const total = ref(0)
 
 async function getQuestionList() {
   const result = await getQuestionListService(params)
-  // console.log(result)
   questionList.value = result.rows
   total.value = result.total
 }
@@ -94,7 +93,7 @@ function onReset() {
   getQuestionList()
 }
 
-const questionEditRef = ref()
+// const questionEditRef = ref()
 // 添加：跳转到独立的添加页，而不是抽屉
 const onAddQuestion = () => {
   router.push("/jcode/layout/question/add")
@@ -108,8 +107,18 @@ function onSuccess(service) {
   getQuestionList()
 }
 
+// async function onEdit(questionId) {
+//   questionEditRef.value.open(questionId)
+// }
+
 async function onEdit(questionId) {
-  questionEditRef.value.open(questionId)
+  router.push({
+    path: "/jcode/layout/question/add",
+    query: {
+      type: "edit",
+      questionId: questionId
+    }
+  })
 }
 
 async function onDelete(questionId) {

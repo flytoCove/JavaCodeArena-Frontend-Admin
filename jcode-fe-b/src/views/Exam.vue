@@ -1,6 +1,7 @@
 <template>
-  <el-form inline="true" style="margin-bottom: 0;">
-    <el-form-item label="" style="margin-bottom: 0.1; margin-right: 10px;">
+    <div style="display: flex; justify-content: flex-start;">
+    <el-form inline="true" style="margin-bottom: 0;">
+      <el-form-item style="margin-bottom: 0.1; margin-right: 10px;">
       <el-date-picker v-model="datetimeRange" style="width: 200px" type="datetimerange" range-separator="至"
         start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
     </el-form-item>
@@ -9,13 +10,14 @@
     </el-form-item>
     <el-form-item >
       <el-button :icon="Search" @click="onSearch" plain></el-button>
-      <el-button @click="onReset" plain type="info">重置</el-button>
+      <el-button :icon="Refresh" @click="onReset" plain type="info"></el-button>
       <el-button type="primary" :icon="Plus" plain @click="onAddExam">添加竞赛</el-button>
     </el-form-item>
   </el-form>
+</div>
   <!-- 表格 -->
   <el-table height="526px" :data="examList">
-    <el-table-column prop="title" width="170px" label="竞赛标题"/>
+    <el-table-column prop="title" label="竞赛标题"/>
     <el-table-column prop="startTime" width="180px" label="竞赛开始时间" />
     <el-table-column prop="endTime" width="180px" label="竞赛结束时间" />
     <el-table-column label="是否开赛" width="100px">
@@ -28,7 +30,7 @@
         </div>
       </template>
     </el-table-column>
-    <el-table-column prop="status" width="90px" label="是否发布">
+    <el-table-column prop="status" width="100px" label="是否发布">
       <template #default="{ row }">
         <div v-if="row.status == 0">
           <el-tag type="danger">未发布</el-tag>
@@ -61,10 +63,11 @@
 </template>
 
 <script setup>
-import { Plus,Search } from '@element-plus/icons-vue'
+import { Plus,Search ,Refresh} from '@element-plus/icons-vue'
 import { getExamListService, delExamService, publishExamService, cancelPublishExamService } from '@/apis/exam'
 import { reactive,ref } from 'vue'
 import router from '@/router'
+import { ElMessageBox, ElMessage } from 'element-plus'
 
 function isNotStartExam(exam) {
   const now = new Date(); //当前时间
@@ -143,11 +146,36 @@ async function onEdit(examId) {
   ///oj/layout/updateExam?type=edit&examId=123
 }
 
+// async function onDelete(examId) {
+//   await delExamService(examId)
+//   params.pageNum = 1
+//   getExamList()
+// }
+
 async function onDelete(examId) {
+  try {
+    await ElMessageBox.confirm(
+      '确认删除该竞赛吗？删除后不可恢复！',
+      '温馨提示',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+    )
+  } catch {
+    // 用户取消删除，直接返回
+    return
+  }
+  
+  // 用户确认删除，调用接口
   await delExamService(examId)
+  ElMessage.success('删除成功')
+  // 重置到第一页并刷新列表
   params.pageNum = 1
   getExamList()
 }
+
 
 async function publishExam(examId) {
   await publishExamService(examId)
