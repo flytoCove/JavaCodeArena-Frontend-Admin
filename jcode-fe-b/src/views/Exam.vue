@@ -16,7 +16,7 @@
   </el-form>
 </div>
   <!-- 表格 -->
-  <el-table height="526px" :data="examList">
+  <el-table height="580px" :data="examList">
     <el-table-column prop="title" label="竞赛标题"/>
     <el-table-column prop="startTime" width="180px" label="竞赛开始时间" />
     <el-table-column prop="endTime" width="180px" label="竞赛结束时间" />
