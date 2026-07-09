@@ -16,7 +16,7 @@
   </div>
   <!-- 表格 -->
   <el-table height="580px" :data="userList">
-    <el-table-column prop="userId" label="用户ID" width="180px" />
+    <el-table-column prop="userId" label="用户ID" width="190px" />
     <el-table-column prop="nickName" label="用户昵称" width="150px" />
     <el-table-column prop="sex" width="70px" label="性别">
       <template #default="{ row }">
@@ -39,7 +39,7 @@
     <el-table-column prop="status" width="90px" label="用户状态">
       <template #default="{ row }">
         <el-tag type="success" v-if="row.status">正常</el-tag>
-        <el-tag type="error" v-else>拉黑</el-tag>
+        <el-tag type="error" v-else>限制</el-tag>
       </template>
     </el-table-column>
     <el-table-column label="操作" width="80px" fixed="right">
@@ -50,7 +50,7 @@
           type="text"
           plain
           @click="onUpdateUserStatus(row.userId, 0)"
-          >拉黑</el-button
+          >限制</el-button
         >
         <el-button
           v-if="row.status === 0"

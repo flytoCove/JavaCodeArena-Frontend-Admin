@@ -38,8 +38,20 @@
           </el-form-item>
 
           <el-form-item label="题目用例:">
-            <el-input v-model="formQuestion.questionCase" placeholder="请输入题目用例" clearable />
-          </el-form-item>
+  <div class="json-editor-wrapper">
+    <el-input
+      v-model="formQuestion.questionCase"
+      type="textarea"
+      :rows="8"
+      placeholder='请输入JSON格式的测试用例，例如：[{"input":"2 3","output":"5"}, ...]'
+      clearable
+    />
+    <div class="json-actions">
+      <el-button size="small" @click="formatJson">格式化</el-button>
+      <el-button size="small" @click="validateJson">校验</el-button>
+    </div>
+  </div>
+</el-form-item>
         </div>
 
         <!-- 题目内容 -->
@@ -251,6 +263,35 @@ onMounted(async () => {
     Object.assign(formQuestion, data)
   }
 })
+
+// 测试用例输入框优化
+// JSON 格式化
+const formatJson = () => {
+  if (!formQuestion.questionCase) {
+    formQuestion.questionCase = '[]'
+    return
+  }
+  try {
+    const parsed = JSON.parse(formQuestion.questionCase)
+    formQuestion.questionCase = JSON.stringify(parsed, null, 2)
+  } catch (e) {
+    ElMessage.error('当前内容不是有效的 JSON 格式，无法格式化')
+  }
+}
+
+// JSON 校验
+const validateJson = () => {
+  if (!formQuestion.questionCase) {
+    ElMessage.warning('题目用例为空')
+    return
+  }
+  try {
+    JSON.parse(formQuestion.questionCase)
+    ElMessage.success('JSON 格式正确')
+  } catch (e) {
+    ElMessage.error('JSON 格式错误：' + e.message)
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -582,5 +623,16 @@ onMounted(async () => {
 
 .code-area {
   margin-top: 10px;
+}
+
+.json-editor-wrapper {
+  width: 100%;
+
+  .json-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+  }
 }
 </style>
